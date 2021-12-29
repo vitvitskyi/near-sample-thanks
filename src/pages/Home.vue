@@ -1,11 +1,10 @@
 <template>
-
     <div id="nav" class="py-4 p-0">
       <Login
-          :user="'user'"
-          :setUser="'setUser'"
-          :error="'error'"
-          :setApiError="'setApiError'"
+          :user="user"
+          :setUser="setUser"
+          :error="error"
+          :setApiError="setApiError"
       />
     </div>
 
@@ -75,7 +74,7 @@
         <div class="relative mt-12 sm:mt-16 lg:mt-24">
           <div class="lg:grid lg:grid-flow-row-dense lg:grid-cols-2 lg:gap-8 lg:items-center">
             <LearnSection />
-            <MessageHistory :messages="user && messages ? messages:  mockDonatesHistoryData" />
+            <MessageHistory :messages="user && messages ? messages: mockDonatesHistoryData" />
           </div>
         </div>
       </div>
@@ -90,6 +89,8 @@ import LearnSection from '../components/LearnSection'
 import { mockDonatesHistory } from '../data/mockData';
 import MessageHistory from '../components/MessageHistory';
 import MessageForm from '../components/MessageForm';
+import {useRecipients} from "../composables/useRecipients";
+import {ref} from "vue";
 
 export default {
   components: {
@@ -100,16 +101,24 @@ export default {
     MessageHistory,
     MessageForm,
   },
+  mounted() {
+    console.log('this.contractId', this.contractId.contractId.value)
+  },
   data(){
     return{
-      recipients: [{ label: "Old Man's War", value: '12345' }, { label: "The Lock Artist", value: '123456' }],
-      user: '',
-      messages: '',
-      owner: '',
-      sendMessage: () => {},
-      transferFunds: false,
       mockDonatesHistoryData: mockDonatesHistory,
     }
-  }
+  },
+  setup(){
+    const user = ref('');
+    const error = ref('');
+
+    const setUser = (data => user.value = data)
+    const setApiError = (data => error.value = data)
+
+    const { recipients, messages, owner, sendMessage, transferFunds } = useRecipients();
+
+    return { recipients, messages, owner, sendMessage, transferFunds, user, error, setUser, setApiError }
+  },
 }
 </script>

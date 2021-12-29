@@ -63,7 +63,7 @@
 
         <div class="w-full">
           <p class="text-indigo-500 text-sm font-bold mt-3">Current Registry Contract ID:</p>
-          <p class="text-black text-sm font-bold">{{registryContractId}}</p>
+          <p class="text-black text-sm font-bold">{{ registryContractId }}</p>
           <p class="text-sm ml-3 mt-2 text-left">Your ID:</p>
           <input
             type="text"
@@ -125,23 +125,39 @@
 </template>
 
 <script>
+  import { useContract } from '../../../composables/useContract'
+
   export default {
     props: {
       setIsOpenChangeContact: {
         type: Function,
         default: () => {}
-      }
+      },
+      setApiError: {
+        type: Function,
+        default: () => {}
+      },
+      error: {
+        type: String,
+        default: '',
+      },
     },
     data(){
       return {
         inputRegistryContract: '',
         inputContract: '',
-        contractId: '',
-        registryContractId: '',
       }
     },
     methods:{
       setDefaultContractId(){}
+    },
+    setup(){
+      const {
+        data: { registryContractId, contractId },
+        setContracts,
+      } = useContract();
+
+      return { contractId, registryContractId, setContracts }
     }
   }
 </script>

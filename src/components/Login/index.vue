@@ -14,7 +14,7 @@
         </svg>
       </button>
 
-      <ChangeContract :error="'error'" setApiError={setApiError} :setIsOpenChangeContact="setIsOpenChangeContact" />
+      <ChangeContract :error="error" :setApiError="setApiError" :setIsOpenChangeContact="setIsOpenChangeContact" />
     </div>
 
     <div v-else class="relative flex items-center">
@@ -58,16 +58,37 @@
   </button>
   </div>
 </template>
+
+
 <script>
-import { UserIcon, LogoutIcon } from '@heroicons/vue/solid'
-import ChangeContract from './ChangeContract'
+  import { UserIcon, LogoutIcon } from '@heroicons/vue/solid'
+  import ChangeContract from './ChangeContract'
+  import { useContract } from '../../composables/useContract'
+  import { wallet } from '../../services/near';
 
   export default {
     data(){
       return {
-        user: 'Ygine',
         isOpenChangeContact: false,
       }
+    },
+    props: {
+      user: {
+        type: String,
+        default: '',
+      },
+      error: {
+        type: String,
+        default: '',
+      },
+      setUser: {
+        type: Function,
+        default: () => {},
+      },
+      setApiError: {
+        type: String,
+        default: () => {},
+      },
     },
     components: {
       UserIcon,
@@ -78,8 +99,21 @@ import ChangeContract from './ChangeContract'
       setIsOpenChangeContact(){
         this.isOpenChangeContact = !this.isOpenChangeContact
       },
-      signOut(){},
-      signIn(){}
-    }
+      signIn(){
+        wallet.requestSignIn(this.contractId);
+      },
+      signOut(){
+        wallet.signOut();
+        localStorage.removeItem(`near-api-js:keystore:${this.user}:testnet`);
+        this.setUser(null);
+      },
+    },
+    setup(){
+      const {
+        data: { contractId },
+      } = useContract();
+
+      return { contractId }
+    },
   }
 </script>
