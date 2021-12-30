@@ -3,8 +3,6 @@
       <Login
           :user="user"
           :setUser="setUser"
-          :error="error"
-          :setApiError="setApiError"
       />
     </div>
 
@@ -32,22 +30,21 @@
           </defs>
           <rect width="404" height="784" fill="url(#b1e6e422-73f8-40a6-b5d9-c8586e37e0e7)" />
         </svg>
-
         <Header />
-
         <div class="relative mt-12 lg:mt-24 lg:grid lg:grid-cols-2 lg:gap-8 lg:items-center">
           <Info />
           <MessageForm
             v-if="recipients"
             :user="user"
-            :recipients="recipients"
+            :recipients="recipients?.map((recipient) => ({
+                  label: recipient,
+                  value: recipient,
+                }))"
             :owner="owner"
             :sendMessage="sendMessage"
             :transferFunds="transferFunds"
           />
-
         </div>
-
         <svg
             class="hidden lg:block absolute right-full transform translate-x-1/2 translate-y-12"
             width="404"
@@ -70,7 +67,6 @@
           </defs>
           <rect width="404" height="784" fill="url(#64e643ad-2176-4f86-b3d7-f2c5da3b6a6d)" />
         </svg>
-
         <div class="relative mt-12 sm:mt-16 lg:mt-24">
           <div class="lg:grid lg:grid-flow-row-dense lg:grid-cols-2 lg:gap-8 lg:items-center">
             <LearnSection />
@@ -101,9 +97,6 @@ export default {
     MessageHistory,
     MessageForm,
   },
-  mounted() {
-    console.log('this.contractId', this.contractId.contractId.value)
-  },
   data(){
     return{
       mockDonatesHistoryData: mockDonatesHistory,
@@ -111,14 +104,11 @@ export default {
   },
   setup(){
     const user = ref('');
-    const error = ref('');
-
-    const setUser = (data => user.value = data)
-    const setApiError = (data => error.value = data)
+    const setUser = data => user.value = data;
 
     const { recipients, messages, owner, sendMessage, transferFunds } = useRecipients();
 
-    return { recipients, messages, owner, sendMessage, transferFunds, user, error, setUser, setApiError }
+    return { recipients, messages, owner, sendMessage, transferFunds, user, setUser }
   },
 }
 </script>

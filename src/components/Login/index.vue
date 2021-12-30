@@ -14,7 +14,7 @@
         </svg>
       </button>
 
-      <ChangeContract :error="error" :setApiError="setApiError" :setIsOpenChangeContact="setIsOpenChangeContact" />
+      <ChangeContract :setIsOpenChangeContact="setIsOpenChangeContact" />
     </div>
 
     <div v-else class="relative flex items-center">
@@ -72,21 +72,17 @@
         isOpenChangeContact: false,
       }
     },
+    mounted() {
+      const userData = wallet.getAccountId();
+      this.setUser(userData);
+    },
     props: {
       user: {
         type: String,
         default: '',
       },
-      error: {
-        type: String,
-        default: '',
-      },
       setUser: {
         type: Function,
-        default: () => {},
-      },
-      setApiError: {
-        type: String,
         default: () => {},
       },
     },

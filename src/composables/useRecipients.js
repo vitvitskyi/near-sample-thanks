@@ -1,11 +1,13 @@
-import {onMounted, ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { getRecipients, getMessages, transfer, sendMessage, getOwner } from '../services/near';
+import {useApiError} from "./useApiError";
 
 const recipients = ref('');
 const messages = ref('');
 const owner = ref('');
 
-export const useRecipients = ( setApiError = () => {} ) => {
+export const useRecipients = () => {
+  const { setApiError } = useApiError()
   const setRecipients = (data => recipients.value = data)
   const setMessages = (data => messages.value = data)
   const setOwner = (data => owner.value = data)
@@ -16,7 +18,7 @@ export const useRecipients = ( setApiError = () => {} ) => {
       setMessages(await getMessages());
       setOwner(await getOwner());
     } catch (e) {
-      setApiError(e);
+      setApiError(e.message);
     }
   };
 
@@ -25,10 +27,11 @@ export const useRecipients = ( setApiError = () => {} ) => {
   });
 
   const handleSendMessage = async (values) => {
+    console.log('values', values)
     try {
       return await sendMessage(values);
     } catch (e) {
-      setApiError(e);
+      setApiError(e.message);
     }
   };
 
@@ -36,7 +39,7 @@ export const useRecipients = ( setApiError = () => {} ) => {
     try {
       return await transfer();
     } catch (e) {
-      setApiError(e);
+      setApiError(e.message);
     }
   };
 

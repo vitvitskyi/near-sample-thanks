@@ -1,4 +1,4 @@
-import { toRefs, reactive } from "vue";
+import { reactive, toRefs } from "vue";
 import { useRecipients } from './useRecipients'
 
 const data = reactive({
@@ -11,20 +11,21 @@ export const useContract = () => {
   data.contractId && localStorage.setItem('CONTRACT_ID', process.env.VUE_APP_CONTRACT_ID);
   data.registryContractId && localStorage.setItem('REGISTRY_CONTRACT_ID', process.env.VUE_APP_REGISTRY_CONTRACT_ID);
 
-  const setData = (data) => ({
-    contractId: data.contractId,
-    registryContractId: data.registryContractId,
-  });
+  const setData = (contractId, registryContractId) => {
+    data.contractId = contractId;
+    data.registryContractId = registryContractId
+  };
 
   const setContractId = (contractId, registryContractId) => {
     localStorage.setItem('CONTRACT_ID', contractId);
     localStorage.setItem('REGISTRY_CONTRACT_ID', registryContractId);
-    setData({ registryContractId, contractId });
+    setData(contractId, registryContractId);
+
     getRecipientsData();
   };
 
   return {
-    data: {...toRefs(data)},
+    data: toRefs(data),
     setContractId
   }
 };

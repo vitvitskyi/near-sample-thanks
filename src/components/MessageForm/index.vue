@@ -60,7 +60,7 @@
               id="tip"
               class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md"
               placeholder="0"
-                v-model="attachedDeposit"
+              v-model="attachedDeposit"
               aria-describedby="message-tip"
             />
             <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -72,7 +72,7 @@
         </div>
         <div class="col-span-6 sm:col-span-6 lg:col-span-3">
           <button
-              onClick={handleSubmit}
+              @click="handleSubmit"
               class="py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             Say Thanks
@@ -81,7 +81,7 @@
 
         <div v-if="owner" class="col-span-6 sm:col-span-6 lg:col-span-3">
           <button
-              onClick={handleTransfer}
+              @click="handleTransfer"
               class="py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             Transfer to owner
@@ -91,14 +91,16 @@
       </div>
     </div>
   </div>
-  <!--  <loading v-if="loading" can-cancel="true" is-full-page="fullPage" />-->
+  <p v-if="loading" class="text-indigo-500">LOADING...</p>
 </template>
 
 <script>
 import { ref } from 'vue'
+import { useContract } from '../../composables/useContract'
 import {
   Switch, SwitchGroup, SwitchLabel
 } from '@headlessui/vue'
+import { wallet } from '../../services/near';
 
 export  default {
   components: {
@@ -117,23 +119,46 @@ export  default {
       type: Function,
       default: () => {}
     }, transferFunds: {
-      type: Boolean,
-      default: false
+      type: Function,
+      default: () => {}
     }
   },
   data(){
     return {
-      loading: false,
-      message: 'qwddqdwdqw',
+      message: '',
       attachedDeposit: '',
-      selected: { label: "Old Man's War", value: '12345' },
-      // selectItem: this.recipients[0],
+      selected: this.recipients[0],
     }
   },
+  methods: {
+    handleSubmit(){
+      if (this.user) {
+        console.log('this.user', this.user)
+        this.setLoading(true);
+        this.sendMessage({
+          message: this.message,
+          anonymous: this.anonymous,
+          attachedDeposit: this.attachedDeposit,
+        });
+        this.setLoading(false);
+      } else {
+        wallet.requestSignIn(this.contractId);
+      }
+    },
+    async handleTransfer() {
+      await this.transferFunds();
+    },
+  },
   setup() {
-    const anonymous = ref(false)
+    const {
+      data: { contractId },
+    } = useContract();
 
-    return { anonymous }
+    const anonymous = ref('')
+    const loading = ref(false)
+    const setLoading = (data) => loading.value = data
+
+    return { anonymous, contractId, setLoading, loading }
   },
 }
 

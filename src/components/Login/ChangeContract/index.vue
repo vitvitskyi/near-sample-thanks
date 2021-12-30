@@ -65,55 +65,36 @@
           <p class="text-indigo-500 text-sm font-bold mt-3">Current Registry Contract ID:</p>
           <p class="text-black text-sm font-bold">{{ registryContractId }}</p>
           <p class="text-sm ml-3 mt-2 text-left">Your ID:</p>
+
           <input
             type="text"
             :class="['w-full h-10 rounded-xl mt-1 border', error ? 'font-semibold border-2 text-red-600 border-red-600' : 'border-gray-300',
             'outline-none focus:outline-indigo-500 text-sm']"
             placeholder="Set your Registry Contract ID"
-            v-model="inputRegistryContract"
+            :value="inputRegistryContract"
+            @input="setInputRegistryContract"
           />
           <p class="text-indigo-500 text-sm font-bold mt-3">Current Contract ID:</p>
           <p class="text-black text-sm font-bold">{{ contractId }}</p>
-          <p class="text-sm ml-3 mt-2 text-left">Your ID:</p>
+          <p class="text-sm ml-3 mt-2 text-left">Your ID: {{ error ? 1 : 2}}</p>
           <input
               type="text"
               :class="['w-full h-10 rounded-xl mt-1 border', error ? 'font-semibold border-2 text-red-600 border-red-600' : 'border-gray-300',
            'outline-none focus:outline-indigo-500 text-sm']"
             placeholder="Set your Contract ID"
-            v-model="inputContract"
+            :value="inputContract"
+            @input="setInputContract"
           />
-          <input
-            type="text"
-            class="w-full h-10 rounded-xl mt-1 font-semibold border-2 text-red-600 border-red-600 outline-none focus:outline-indigo-500 text-sm"
-            placeholder="Set your ID"
-        />
-<!--          <div class="flex items-center">-->
-<!--            <svg-->
-<!--                xmlns="http://www.w3.org/2000/svg"-->
-<!--                class="mr-1 mt-1"-->
-<!--                width="16"-->
-<!--                height="13"-->
-<!--                viewBox="0 0 16 13"-->
-<!--                fill="none"-->
-<!--            >-->
-<!--              <path-->
-<!--                  d="M0.666664 13H15.3333L8 0.333313L0.666664 13ZM8.66666 11H7.33333V9.66665H8.66666V11ZM8.66666 8.33331H7.33333V5.66665H8.66666V8.33331Z"-->
-<!--                  fill="#F03738"-->
-<!--              />-->
-<!--            </svg>-->
-<!--            <p class="text-sm mt-2 text-left">Check your ID</p>-->
-<!--          </div> -->
-
           <button
               v-if="contractId !== inputContract || registryContractId !== inputRegistryContract"
-              onClick={applyContracts}
+              @click="applyContracts"
               class="w-full h-10 mt-4 bg-indigo-500 hover:bg-white hover:text-indigo-500 border-2 border-indigo-500 flex items-center justify-center font-bold text-white rounded-full transform active:scale-95 duration-200"
           >
             Apply
           </button>
 
           <button
-              @lick="setDefaultContractId"
+              @click="setDefaultContractId"
               class="w-full h-10 mt-4 bg-white hover:bg-red-600 hover:text-white border-2 border-red-600 flex items-center justify-center font-bold text-red-600 rounded-full transform active:scale-95 duration-200"
           >
             Reset to default
@@ -126,38 +107,56 @@
 
 <script>
   import { useContract } from '../../../composables/useContract'
+  import {useApiError} from "../../../composables/useApiError";
+
+  const defaultRegistryContractId = process.env.VUE_APP_REGISTRY_CONTRACT_ID;
+  const defaultContractId = process.env.VUE_APP_CONTRACT_ID;
 
   export default {
-    props: {
-      setIsOpenChangeContact: {
-        type: Function,
-        default: () => {}
-      },
-      setApiError: {
-        type: Function,
-        default: () => {}
-      },
-      error: {
-        type: String,
-        default: '',
-      },
-    },
     data(){
       return {
         inputRegistryContract: '',
         inputContract: '',
       }
     },
+    props: {
+      setIsOpenChangeContact: {
+        type: Function,
+        default: () => {}
+      },
+    },
+    created() {
+      this.inputContract =  this.contractId;
+      this.inputRegistryContract = this.registryContractId;
+    },
     methods:{
-      setDefaultContractId(){}
+      applyContracts(){
+        this.setContractId(this.inputContract, this.inputRegistryContract);
+        this.setApiError('');
+      },
+      setDefaultContractId(){
+        this.setContractId(defaultContractId, defaultRegistryContractId);
+        this.inputRegistryContract = defaultRegistryContractId ;
+        this.inputContract = defaultContractId;
+        this.setApiError('');
+      },
+      setInputRegistryContract(e) {
+        this.inputRegistryContract = e.target.value
+        this.setApiError('');
+      },
+      setInputContract(e) {
+        this.inputContract = e.target.value
+        this.setApiError('');
+      }
     },
     setup(){
       const {
         data: { registryContractId, contractId },
-        setContracts,
+        setContractId,
       } = useContract();
+      const { error, setApiError } = useApiError()
 
-      return { contractId, registryContractId, setContracts }
+      return { contractId, registryContractId, setContractId, error, setApiError}
     }
   }
 </script>
